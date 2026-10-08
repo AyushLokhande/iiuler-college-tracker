@@ -1,0 +1,71 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#080a0f">
+  <title>IIULER</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+  <header class="header">
+    <div>
+      <div class="college-name">IIULER</div>
+      <h1 id="pageTitle">Attendance</h1>
+    </div>
+
+    <button class="today-button" onclick="goToday()">Today</button>
+  </header>
+
+  <main>
+
+    <section id="attendancePage" class="page active"></section>
+
+    <section id="calendarPage" class="page"></section>
+
+    <section id="messPage" class="page"></section>
+
+  </main>
+
+  <nav class="bottom-nav">
+
+    <button
+      class="nav-button active"
+      id="navAttendance"
+      onclick="changePage('attendance')">
+      <span class="nav-icon">◉</span>
+      <span>Attendance</span>
+    </button>
+
+    <button
+      class="nav-button"
+      id="navCalendar"
+      onclick="changePage('calendar')">
+      <span class="nav-icon">▦</span>
+      <span>Calendar</span>
+    </button>
+
+    <button
+      class="nav-button"
+      id="navMess"
+      onclick="changePage('mess')">
+      <span class="nav-icon">☷</span>
+      <span>Mess</span>
+    </button>
+
+  </nav>
+
+</div>
+
+<div id="modal"></div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
