@@ -1803,3 +1803,29 @@ main {
   transform: scale(0.98);
   background: rgba(239, 70, 84, 0.14);
 }
+
+.attendance-greeting {
+  margin-bottom: 18px;
+  padding: 4px 2px 2px;
+}
+
+.attendance-greeting-small {
+  margin-bottom: 5px;
+  color: #6f89ae;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 2px;
+}
+
+.attendance-greeting-title {
+  color: #edf1f5;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.attendance-greeting-subtitle {
+  margin-top: 6px;
+  color: #737c89;
+  font-size: 11px;
+}

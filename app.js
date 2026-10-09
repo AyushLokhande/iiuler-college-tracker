@@ -7,7 +7,7 @@
    ========================= */
 
 const SUBJECTS = {
-  "Legal Methods": { attended: 12, total: 21 },
+  "Legal Methods": { attended: 10, total: 16 },
   "Economics I": { attended: 13, total: 23 },
   "Law of Torts": { attended: 15, total: 25 },
   "English I": { attended: 21, total: 32 },
@@ -813,7 +813,24 @@ function renderAttendance() {
     }
   });
 
+
+  /* =========================
+     AVNI GREETING
+     ========================= */
+
   let html = `
+    <div class="attendance-greeting">
+
+      <div class="attendance-greeting-title">
+        Hey, Avni Parmar 👋
+      </div>
+
+      <div class="attendance-greeting-subtitle">
+        Here's your attendance overview
+      </div>
+
+    </div>
+
     <div class="card overall-card">
 
       <div class="overall-title">
@@ -1498,10 +1515,6 @@ function saveAttendance(key) {
       selected.dataset.status;
   });
 
-  /*
-    Only save if at least one class was marked.
-  */
-
   if (Object.keys(records).length > 0) {
     state.attendanceRecords[key] =
       records;
@@ -1529,16 +1542,6 @@ function resetAttendance() {
   if (!confirmed) {
     return;
   }
-
-  /*
-    IMPORTANT:
-    This only clears attendance entered
-    through this website.
-
-    It does NOT change SUBJECTS.
-    Therefore the original values such as
-    12/21, 13/23, etc. come back.
-  */
 
   state.attendanceRecords = {};
 
