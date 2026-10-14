@@ -1829,3 +1829,89 @@ main {
   color: #737c89;
   font-size: 11px;
 }
+
+/* LIVE SCHEDULE STATUS + TIMETABLE EDITOR */
+.schedule-status-card{margin-bottom:12px;padding:16px;border:1px solid #26354c;border-radius:16px;background:linear-gradient(135deg,#101a2b,#0d131d);box-shadow:0 5px 20px rgba(0,0,0,.14)}
+.schedule-status-kicker{color:#6f89ae;font-size:9px;font-weight:800;letter-spacing:1.6px;margin-bottom:5px}
+.schedule-status-title{font-size:16px;font-weight:750;color:#edf1f5;line-height:1.3}
+.schedule-status-detail{font-size:11px;color:#9aa5b5;margin-top:5px;line-height:1.45}
+.schedule-class{border-color:#285d42}.schedule-break{border-color:#5b4723}.schedule-off{border-color:#29313c}.schedule-done{border-color:#285d42}
+.schedule-edit-button{margin-top:12px;min-height:34px;padding:0 12px;border:1px solid #293b56;border-radius:10px;background:#15233a;color:#bcd2ff;font-size:10px;font-weight:700}
+.calendar-timetable-button{margin:0 0 12px}
+.timetable-overlay{position:fixed;inset:0;z-index:300;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.76);backdrop-filter:blur(7px)}
+.timetable-modal{width:100%;max-width:520px;max-height:94vh;overflow:auto;padding:18px 14px 28px;background:#0b0e13;border:1px solid #252b34;border-radius:22px 22px 0 0}
+.timetable-modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.timetable-modal-head h2{margin:0;color:#f0f2f5;font-size:20px}
+.timetable-note{font-size:11px;line-height:1.55;color:#929baa;margin:12px 0}
+.upload-timetable-button{display:flex;align-items:center;justify-content:center;min-height:46px;padding:10px;border:1px dashed #41659a;border-radius:12px;background:#101b2d;color:#c5d8ff;font-size:12px;font-weight:700}
+.upload-timetable-button input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.timetable-edit-day{margin-top:14px;padding:12px;background:#10141b;border:1px solid #252b34;border-radius:13px}.timetable-edit-day h3{margin:0 0 10px;font-size:13px;color:#e8edf5}
+.timetable-edit-row{display:grid;grid-template-columns:80px 80px minmax(0,1fr);gap:6px;margin-top:7px}
+.timetable-edit-row input,.timetable-edit-row select{width:100%;min-width:0;height:38px;padding:0 6px;border:1px solid #303744;border-radius:8px;background:#0b0e13;color:#e6ebf2;font-size:10px}
+.timetable-save{width:100%;margin:14px 0 8px;min-height:46px;border-radius:12px;background:#347dff;color:#fff;font-weight:750}
+@media(max-width:360px){.timetable-edit-row{grid-template-columns:69px 69px minmax(0,1fr);gap:4px}.timetable-edit-row input,.timetable-edit-row select{font-size:9px;padding:0 3px}}
+
+
+/* MESS PAGE — layout for the current app.js markup */
+.eyebrow{margin:0 0 10px;color:#8c96a5;font-size:10px;font-weight:800;letter-spacing:2px;line-height:1.4}
+.mess-topline{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:4px 2px 20px}
+.mess-topline>div{min-width:0;flex:1}
+.mess-heading{margin:0;color:#f2f5f8;font-size:25px;line-height:1.18;font-weight:750;letter-spacing:-.65px}
+.mess-subtitle{margin:8px 0 0;color:#9aa3b1;font-size:13px;line-height:1.5}
+.mess-edit-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;flex-shrink:0;min-height:38px;padding:0 12px;border:1px solid #2a3545;border-radius:11px;background:#121923;color:#dce7f8;font-size:12px;font-weight:700;white-space:nowrap}
+.mess-edit-button span{font-size:16px;color:#7eafff}
+.mess-date-picker{display:grid;grid-template-columns:40px minmax(0,1fr) 40px;align-items:center;gap:10px;margin-bottom:16px;padding:10px 11px;background:linear-gradient(145deg,#111720,#0d1118);border:1px solid #222a35;border-radius:15px}
+.mess-date-center{text-align:center;min-width:0}
+.mess-current-day{color:#f0f3f7;font-size:15px;font-weight:750;line-height:1.3}
+.mess-current-date{margin-top:3px;color:#929cab;font-size:11px}
+.mess-meal-grid{display:grid;grid-template-columns:1fr;gap:11px}
+.mess-meal-card{min-width:0;padding:15px 15px 14px;background:linear-gradient(145deg,rgba(18,22,29,.98),rgba(13,16,22,.98));border:1px solid #252c37;border-radius:16px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.mess-meal-top{display:flex;align-items:center;gap:11px;margin-bottom:12px}
+.mess-meal-icon{display:flex;align-items:center;justify-content:center;flex:0 0 37px;width:37px;height:37px;border:1px solid #2a3a51;border-radius:12px;background:#111e30;color:#8db8ff;font-size:18px}
+.mess-meal-top h3{margin:0;color:#edf1f6;font-size:15px;font-weight:750;line-height:1.25}
+.mess-meal-top p{margin:3px 0 0;color:#7f8998;font-size:10px}
+.mess-food-list{display:grid;gap:7px;margin:0;padding:0;list-style:none;color:#c9d0da;font-size:13px;line-height:1.45}
+.mess-food-list li{position:relative;padding-left:17px;overflow-wrap:anywhere}
+.mess-food-list li::before{content:"";position:absolute;left:2px;top:.52em;width:5px;height:5px;border-radius:50%;background:#638fd4}
+.mess-empty{margin:0;color:#7f8998;font-size:12px}
+.mess-saved-note{display:flex;align-items:center;gap:7px;margin:12px 2px 0;color:#7f8998;font-size:10px}
+.mess-saved-note span{color:#35c978}
+.mess-editor-overlay{z-index:350}
+.mess-editor-modal{max-height:94dvh;padding-bottom:calc(22px + env(safe-area-inset-bottom));}
+.mess-editor-modal .predictor-top{align-items:flex-start;gap:12px;margin-bottom:12px}
+.mess-editor-modal .predictor-top h2{margin:0;color:#f1f4f8;font-size:21px}
+.mess-editor-modal .mess-subtitle{max-width:270px;font-size:11px}
+.mess-upload-area{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:100px;margin:14px 0 10px;padding:15px;border:1px dashed #365783;border-radius:14px;background:#0d1727;color:#e3edff;text-align:center;cursor:pointer}
+.mess-upload-symbol{display:flex;align-items:center;justify-content:center;width:30px;height:30px;margin-bottom:2px;border-radius:9px;background:#172b48;color:#8eb8ff;font-size:22px}
+.mess-upload-area strong{font-size:12px}
+.mess-upload-area>span:last-of-type{color:#8e9db3;font-size:10px}
+.mess-upload-area input{position:absolute;width:1px;height:1px;opacity:0}
+.mess-ocr-status{margin:10px 0 14px;padding:10px 11px;border:1px solid #252f3e;border-radius:10px;background:#0c1119;color:#9ca8b8;font-size:11px;line-height:1.5;overflow-wrap:anywhere}
+#messMenuEditorFields{display:grid;gap:12px}
+.mess-editor-day{padding:13px;background:#10141b;border:1px solid #252c37;border-radius:13px}
+.mess-editor-day h3{margin:0 0 12px;color:#eef2f7;font-size:14px}
+.mess-editor-field{display:block;margin-top:11px}
+.mess-editor-field>span{display:block;margin-bottom:6px;color:#aeb8c6;font-size:11px;font-weight:700}
+.mess-editor-field textarea{display:block;width:100%;min-height:74px;resize:vertical;padding:10px 11px;border:1px solid #303846;border-radius:10px;outline:none;background:#090c11;color:#e6ebf2;font:12px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+.mess-editor-field textarea:focus{border-color:#347dff;box-shadow:0 0 0 2px rgba(52,125,255,.13)}
+.mess-editor-field textarea::placeholder{color:#5f6978}
+.mess-editor-actions{position:sticky;bottom:-1px;display:grid;grid-template-columns:1fr 1.2fr;gap:9px;margin-top:14px;padding:10px 0 2px;background:linear-gradient(180deg,rgba(9,12,17,0),#090c11 22%)}
+.mess-editor-actions .secondary-button,.mess-editor-actions .primary-button{width:100%;margin:0;min-height:44px}
+@media(min-width:430px){.mess-meal-grid{grid-template-columns:1fr 1fr}.mess-meal-card{padding:14px 12px}.mess-meal-top{gap:8px}.mess-meal-icon{width:33px;height:33px;flex-basis:33px}}
+@media(max-width:360px){.mess-heading{font-size:22px}.mess-edit-button{padding:0 9px;font-size:11px}.mess-date-picker{gap:6px;padding:8px}}
+.attendance-greeting {
+  margin-bottom: 18px;
+  padding: 4px 2px 2px;
+}
+
+.attendance-greeting-title {
+  color: #edf1f5;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.attendance-greeting-subtitle {
+  margin-top: 6px;
+  color: #737c89;
+  font-size: 11px;
+}
