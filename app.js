@@ -798,101 +798,96 @@ function timetableStatusHTML() {
    ========================= */
 
 
+
 function openTimetableManager() {
-  const schedule = getActiveTimetable();
-
-  const dayNames = {
-    1: "Monday",
-    2: "Tuesday",
-    3: "Wednesday",
-    4: "Thursday",
-    5: "Friday"
-  };
-
-  let rows = "";
-
-  for (let day = 1; day <= 5; day++) {
-    const slots = schedule[day] || [];
-
-    rows += `
-      <section class="timetable-edit-day">
-        <h3>${dayNames[day]}</h3>
-    `;
-
-    slots.forEach((lesson, index) => {
-      rows += `
-        <div class="timetable-subject-row">
-          <div class="timetable-subject-time">
-            ${timeLabel(lesson[0])} – ${timeLabel(lesson[1])}
-          </div>
-
-          <select
-            class="tt-subject"
-            data-day="${day}"
-            data-index="${index}"
-            aria-label="${dayNames[day]} class ${index + 1} subject"
-          >
-            <option value="">No class</option>
-
-            ${Object.keys(SUBJECTS).map(subject => `
-              <option
-                value="${subject}"
-                ${lesson[2] === subject ? "selected" : ""}
-              >${subject}</option>
-            `).join("")}
-          </select>
-        </div>
-      `;
-    });
-
-    rows += `</section>`;
-  }
-
   document.getElementById("modal").innerHTML = `
-    <div
-      class="timetable-overlay"
-      onclick="if(event.target===this)closeTimetableManager()"
-    >
-      <div class="timetable-modal">
+    <div class="timetable-overlay" onclick="if(event.target===this)closeTimetableManager()">
+      <div class="timetable-modal" onclick="event.stopPropagation()">
         <div class="timetable-modal-head">
           <div>
             <div class="attendance-greeting-small">SCHEDULE SETTINGS</div>
             <h2>Update timetable</h2>
           </div>
-
           <button class="close-button" onclick="closeTimetableManager()">✕</button>
         </div>
 
         <p class="timetable-note">
-          Choose the correct subject for each class. Class timings are fixed.
+          Upload a clear photo of the timetable. Save it when you're done.
         </p>
 
         <label class="upload-timetable-button">
-          📷 Upload timetable photo
+          📷 Upload timetable image
           <input
+            id="timetableImageInput"
             type="file"
             accept="image/*"
-            onchange="readTimetablePhoto(event)"
+            onchange="previewTimetableImage(event)"
           >
         </label>
 
-        <div id="timetableOcrStatus" class="timetable-note"></div>
-
-        <div id="timetableEditRows">${rows}</div>
+        <div id="timetableImagePreview" style="margin-top:16px"></div>
 
         <button
           class="save-attendance-button timetable-save"
-          onclick="saveTimetableEdits()"
-        >Save timetable</button>
-
-        <button
-          class="secondary-button"
-          onclick="resetTimetable()"
-        >Reset timetable</button>
+          onclick="saveTimetableImage()"
+        >Save changes</button>
       </div>
     </div>
   `;
 }
+
+function previewTimetableImage(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  if (!file.type.startsWith("image/")) {
+    alert("Please upload an image.");
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    const preview = document.getElementById("timetableImagePreview");
+    if (!preview) return;
+
+    preview.innerHTML = `
+      <img
+        src="${reader.result}"
+        alt="Timetable preview"
+        style="width:100%;max-height:400px;object-fit:contain;border-radius:12px;background:#080a0f"
+      >
+    `;
+  };
+
+  reader.readAsDataURL(file);
+}
+
+async function saveTimetableImage() {
+  const input = document.getElementById("timetableImageInput");
+  const file = input?.files?.[0];
+
+  if (!file) {
+    alert("Please upload a timetable image first.");
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = async () => {
+    try {
+      localStorage.setItem("iiuler_timetable_image_v1", reader.result);
+      closeTimetableManager();
+      alert("Timetable image saved!");
+    } catch (error) {
+      console.error(error);
+      alert("Image is too large to save. Please upload a smaller image.");
+    }
+  };
+
+  reader.readAsDataURL(file);
+}
+
 
 
 function closeTimetableManager() {
@@ -2090,7 +2085,6 @@ function renderMess() {
       <div>
         <p class="eyebrow">DAILY DINING</p>
         <h2 class="mess-heading">What's on the menu?</h2>
-        <p class="mess-subtitle">Your daily mess menu, at a glance.</p>
       </div>
       <button class="mess-edit-button" onclick="openMessMenuManager()">
         <span>＋</span> Update
