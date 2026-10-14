@@ -9,8 +9,43 @@
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <div class="app">
+
+  <div id="cloudLogin" style="
+    max-width:420px;
+    margin:12vh auto;
+    padding:24px;
+    color:#f5f7fa;
+    background:#11141a;
+    border:1px solid #222731;
+    border-radius:20px;
+    font-family:system-ui,sans-serif;
+  ">
+    <h2 style="margin-top:0">IIULER · GOA</h2>
+    <p style="color:#858c98">Sign in to sync attendance and mess updates.</p>
+
+    <form id="cloudLoginForm">
+      <input id="cloudEmail" type="email" placeholder="Email"
+        autocomplete="username" required
+        style="display:block;width:100%;box-sizing:border-box;margin:12px 0;padding:13px;border-radius:10px;border:1px solid #333;background:#080a0e;color:white;">
+
+      <input id="cloudPassword" type="password" placeholder="Password"
+        autocomplete="current-password" required
+        style="display:block;width:100%;box-sizing:border-box;margin:12px 0;padding:13px;border-radius:10px;border:1px solid #333;background:#080a0e;color:white;">
+
+      <button type="submit"
+        style="width:100%;padding:13px;border-radius:10px;background:#347dff;color:white;font-weight:700;">
+        Sign in
+      </button>
+    </form>
+
+    <p id="cloudLoginStatus" role="status"
+      style="color:#a7afbb;font-size:13px"></p>
+  </div>
+
+  <div class="app" style="display:none">
+
     <header class="header">
       <div>
         <div class="college-name">IIULER · GOA</div>
@@ -40,8 +75,11 @@
 
   <div id="modal"></div>
 
-  <!-- OCR library for future timetable and mess-menu photo extraction -->
+
+  <!-- Libraries: load each one only once -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
+

@@ -1,3 +1,218 @@
+/* ========== SUPABASE CLOUD SYNC ========== */
+
+const SUPABASE_URL = "https://fbppupqcndsrmkedvypj.supabase.co";
+const SUPABASE_KEY = "sb_publishable_18cWVacawL1xbgirE-llAQ_zzz27Fqu";
+
+const cloud = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+let cloudReady = false;
+let applyingCloudChange = false;
+
+async function cloudWrite(key, value) {
+  if (!cloudReady || applyingCloudChange) return;
+
+  const { error } = await cloud
+    .from("shared_app_data")
+    .upsert({
+      data_key: key,
+      value: value,
+      updated_at: new Date().toISOString()
+    });
+
+  if (error) {
+    console.error("Cloud save failed:", key, error);
+    alert("Cloud sync failed. Check your connection and sign-in.");
+  }
+}
+
+async function loadCloudData() {
+  const { data, error } = await cloud
+    .from("shared_app_data")
+    .select("data_key, value");
+
+  if (error) throw error;
+
+  const remote = Object.fromEntries(
+    (data || []).map(row => [row.data_key, row.value])
+  );
+
+  const localAttendance = JSON.parse(
+    localStorage.getItem("iiuler_attendance_v2") || '{"attendanceRecords":{}}'
+  );
+
+  const localTimetable = JSON.parse(
+    localStorage.getItem("iiuler_timetable_override_v1") || "null"
+  );
+
+  const localMess = JSON.parse(
+    localStorage.getItem("iiuler_mess_menu_v1") || "null"
+  );
+
+  const localHolidays = { ...HOLIDAYS };
+
+  // If a cloud record exists, it takes priority.
+  // Otherwise, migrate the current device's data.
+  if (Object.hasOwn(remote, "attendance")) {
+    state = remote.attendance;
+  } else {
+    state = localAttendance;
+    await cloudWrite("attendance", state);
+  }
+
+  if (Object.hasOwn(remote, "timetable")) {
+    timetableOverride = remote.timetable;
+  } else {
+    timetableOverride = localTimetable;
+    await cloudWrite("timetable", timetableOverride);
+  }
+
+  if (Object.hasOwn(remote, "holidays")) {
+    HOLIDAYS = remote.holidays;
+  } else {
+    HOLIDAYS = localHolidays;
+    await cloudWrite("holidays", HOLIDAYS);
+  }
+
+  if (Object.hasOwn(remote, "mess")) {
+    savedMessMenu = remote.mess;
+  } else {
+    savedMessMenu = localMess;
+    await cloudWrite("mess", savedMessMenu);
+  }
+
+  // Keep local storage as a local cache.
+  localStorage.setItem("iiuler_attendance_v2", JSON.stringify(state));
+  localStorage.setItem(
+    "iiuler_timetable_override_v1",
+    JSON.stringify(timetableOverride)
+  );
+  localStorage.setItem("iiuler_mess_menu_v1", JSON.stringify(savedMessMenu));
+
+  cloudReady = true;
+
+  renderAttendance();
+  renderCalendar();
+  renderMess();
+}
+
+function applyRemoteChange(row) {
+  if (!row) return;
+
+  applyingCloudChange = true;
+
+  try {
+    switch (row.data_key) {
+      case "attendance":
+        state = row.value;
+        localStorage.setItem("iiuler_attendance_v2", JSON.stringify(state));
+        break;
+
+      case "timetable":
+        timetableOverride = row.value;
+        localStorage.setItem(
+          "iiuler_timetable_override_v1",
+          JSON.stringify(timetableOverride)
+        );
+        break;
+
+      case "holidays":
+        HOLIDAYS = row.value;
+        break;
+
+      case "mess":
+        savedMessMenu = row.value;
+        localStorage.setItem(
+          "iiuler_mess_menu_v1",
+          JSON.stringify(savedMessMenu)
+        );
+        break;
+    }
+
+    renderAttendance();
+    renderCalendar();
+    renderMess();
+  } finally {
+    applyingCloudChange = false;
+  }
+}
+
+function startCloudRealtime() {
+  cloud
+    .channel("iiuler-shared-data")
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "shared_app_data"
+      },
+      payload => {
+        if (payload.new) applyRemoteChange(payload.new);
+      }
+    )
+    .subscribe(status => {
+      console.log("Cloud realtime status:", status);
+    });
+}
+
+async function startCloudApp() {
+  const login = document.getElementById("cloudLogin");
+  const app = document.querySelector(".app");
+  const status = document.getElementById("cloudLoginStatus");
+
+  document.getElementById("cloudLoginForm").addEventListener(
+    "submit",
+    async event => {
+      event.preventDefault();
+
+      status.textContent = "Signing in…";
+
+      const email = document.getElementById("cloudEmail").value.trim();
+      const password = document.getElementById("cloudPassword").value;
+
+      const { error } = await cloud.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        status.textContent = error.message;
+        return;
+      }
+
+      try {
+        await loadCloudData();
+        startCloudRealtime();
+
+        login.style.display = "none";
+        app.style.display = "";
+      } catch (err) {
+        console.error(err);
+        status.textContent =
+          "Signed in, but cloud data could not load. Check the database setup.";
+        await cloud.auth.signOut();
+      }
+    }
+  );
+
+  const { data: { session } } = await cloud.auth.getSession();
+
+  if (session) {
+    try {
+      await loadCloudData();
+      startCloudRealtime();
+      login.style.display = "none";
+      app.style.display = "";
+    } catch (err) {
+      console.error(err);
+      status.textContent = "Could not load cloud data. Please sign in again.";
+    }
+  }
+}
+
 /* =========================================================
    IIULER ATTENDANCE APP
    ========================================================= */
@@ -22,7 +237,7 @@ const ATTENDANCE_CUTOFF = "2026-11-25";
    HOLIDAYS
    ========================= */
 
-const HOLIDAYS = {
+let HOLIDAYS = {
   "2026-08-15": "Independence Day",
   "2026-08-25": "Id-e-Milad",
   "2026-09-04": "Janmashtami",
@@ -412,8 +627,8 @@ function saveState() {
     STORAGE_KEY,
     JSON.stringify(state)
   );
+ cloudWrite("attendance", state);
 }
-
 /* =========================
    TIMETABLE AND LIVE STATUS
    ========================= */
@@ -758,7 +973,9 @@ function saveTimetableEdits() {
   localStorage.setItem(
     TIMETABLE_STORAGE_KEY,
     JSON.stringify(schedule)
+    
   );
+  cloudWrite("timetable", schedule);
 
   closeTimetableManager();
   renderAttendance();
@@ -775,6 +992,7 @@ function resetTimetable() {
   timetableOverride = null;
 
   localStorage.removeItem(TIMETABLE_STORAGE_KEY);
+  cloudWrite("timetable", null);
 
   closeTimetableManager();
   renderAttendance();
@@ -2091,7 +2309,8 @@ async function readMessMenuPhoto(event) {
   }
 }
 
-function saveMessMenu() {
+
+async function saveMessMenu() {
   const menu = {};
 
   for (const day of DAY_NAMES) {
@@ -2099,7 +2318,10 @@ function saveMessMenu() {
     menu[key] = {};
 
     for (const meal of MESS_MEALS) {
-      const field = document.querySelector(`[data-menu-day="${key}"][data-menu-meal="${meal.key}"]`);
+      const field = document.querySelector(
+        `[data-menu-day="${key}"][data-menu-meal="${meal.key}"]`
+      );
+
       menu[key][meal.key] = field
         ? field.value.split(/\r?\n/).map(item => item.trim()).filter(Boolean)
         : [];
@@ -2109,12 +2331,15 @@ function saveMessMenu() {
   try {
     localStorage.setItem(MESS_STORAGE_KEY, JSON.stringify(menu));
     savedMessMenu = menu;
+
+    await cloudWrite("mess", menu);
+
     closeMessMenuManager();
     renderMess();
-    alert("Mess menu saved on this device.");
+    alert("Mess menu saved successfully.");
   } catch (error) {
     console.error("Could not save mess menu:", error);
-    alert("Could not save the menu. Your browser storage may be full.");
+    alert("Could not save the menu. Please check the console.");
   }
 }
 
@@ -2172,9 +2397,7 @@ function goToday() {
    INITIALIZE
    ========================= */
 
-renderAttendance();
-renderCalendar();
-renderMess();
+startCloudApp();
 
 /* Refresh live timetable status periodically while the app is open. */
 setInterval(() => {
