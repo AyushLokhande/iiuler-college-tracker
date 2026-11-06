@@ -487,7 +487,7 @@ function renderAttendance() {
   html += `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
       <button class="predictor-button" style="margin-bottom:0" onclick="openPredictor()">📊 Predictor</button>
-      <button class="secondary-button" style="min-height:46px;margin-top:0" onclick="openBaselineManager()">✏️ Edit Baseline</button>
+      <button class="secondary-button" style="min-height:46px;margin-top:0" onclick="openBaselineManager()">✏️ Edit Attendance</button>
     </div>`;
 
   for (const subject in data) {
@@ -714,7 +714,7 @@ function renderPredictor() {
           <button class="close-button" onclick="closePredictor()">×</button>
         </div>
         <div class="predictor-controls">
-          <div class="predictor-month">Remaining Days (Nov 2026)</div>
+          <div class="predictor-month">Remaining Days</div>
         </div>
         <div class="info-box">
           Tap a class day to cycle: <b>Attending</b> → <b style="color:var(--red)">Not Attending</b> → <b>Ignored</b>.<br><br>

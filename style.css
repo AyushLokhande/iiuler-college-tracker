@@ -663,6 +663,10 @@ main {
   font-size: 10px;
 }
 
+/* =========================================================
+   UPDATED ATTENDANCE TOGGLE (Removes grayed out overlay)
+   ========================================================= */
+
 .attendance-toggle {
   display: flex;
   gap: 3px;
@@ -673,22 +677,28 @@ main {
 }
 
 .attendance-choice {
-  min-width: 58px;
+  min-width: 64px;
   height: 34px;
   border-radius: 7px;
-  color: #697381;
-  font-size: 10px;
+  background: transparent;
+  color: #8e96a4; /* Fully visible muted text */
+  font-size: 11px;
   font-weight: 700;
+  transition: all 0.15s ease;
+}
+
+.attendance-choice:hover:not(.selected) {
+  color: #d1d7e0;
 }
 
 .attendance-choice.present-choice.selected {
-  background: rgba(48, 194, 113, 0.16);
-  color: #49d487;
+  background: #0f3824;
+  color: #35c978;
 }
 
 .attendance-choice.absent-choice.selected {
-  background: rgba(239, 70, 84, 0.16);
-  color: #ff6875;
+  background: #3b1419;
+  color: #f04452;
 }
 
 .attendance-modal-actions {
