@@ -26,22 +26,18 @@
     <p style="color:#858c98">Sign in to sync attendance and mess updates.</p>
 
     <form id="cloudLoginForm">
-      <input id="cloudEmail" type="email" placeholder="Email"
-        autocomplete="username" required
+      <input id="cloudEmail" type="email" placeholder="Email" autocomplete="username" required
         style="display:block;width:100%;box-sizing:border-box;margin:12px 0;padding:13px;border-radius:10px;border:1px solid #333;background:#080a0e;color:white;">
 
-      <input id="cloudPassword" type="password" placeholder="Password"
-        autocomplete="current-password" required
+      <input id="cloudPassword" type="password" placeholder="Password" autocomplete="current-password" required
         style="display:block;width:100%;box-sizing:border-box;margin:12px 0;padding:13px;border-radius:10px;border:1px solid #333;background:#080a0e;color:white;">
 
-      <button type="submit"
-        style="width:100%;padding:13px;border-radius:10px;background:#347dff;color:white;font-weight:700;">
+      <button type="submit" style="width:100%;padding:13px;border-radius:10px;background:#347dff;color:white;font-weight:700;">
         Sign in
       </button>
     </form>
 
-    <p id="cloudLoginStatus" role="status"
-      style="color:#a7afbb;font-size:13px"></p>
+    <p id="cloudLoginStatus" role="status" style="color:#a7afbb;font-size:13px"></p>
   </div>
 
   <div class="app" style="display:none">
@@ -75,11 +71,8 @@
 
   <div id="modal"></div>
 
-
-  <!-- Libraries: load each one only once -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
-
