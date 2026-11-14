@@ -30,21 +30,27 @@ async function loadCloudData() {
   state = remote.attendance || JSON.parse(localStorage.getItem("iiuler_attendance_v2") || '{"attendanceRecords":{}}');
   timetableOverride = remote.timetable || JSON.parse(localStorage.getItem("iiuler_timetable_override_v1") || "null");
 
-  // Merge default holidays with remote cloud holidays so new holidays from code always reflect
   HOLIDAYS = { ...HOLIDAYS, ...(remote.holidays || {}) };
+
+  const menuVersion = localStorage.getItem("iiuler_mess_version");
+  if (menuVersion !== "nov_dec_2026") {
+    savedMessMenu = NOV_DEC_MENU;
+    localStorage.setItem(MESS_STORAGE_KEY, JSON.stringify(NOV_DEC_MENU));
+    localStorage.setItem("iiuler_mess_version", "nov_dec_2026");
+  } else {
+    savedMessMenu = remote.mess || JSON.parse(localStorage.getItem(MESS_STORAGE_KEY) || "null") || NOV_DEC_MENU;
+  }
+
+  cloudReady = true;
+
   await cloudWrite("holidays", HOLIDAYS);
-
-  savedMessMenu = remote.mess || JSON.parse(localStorage.getItem("iiuler_mess_menu_v1") || "null");
-
+  await cloudWrite("mess", savedMessMenu);
   if (!remote.attendance) await cloudWrite("attendance", state);
   if (!remote.timetable) await cloudWrite("timetable", timetableOverride);
-  if (!remote.mess) await cloudWrite("mess", savedMessMenu);
 
   localStorage.setItem("iiuler_attendance_v2", JSON.stringify(state));
   localStorage.setItem("iiuler_timetable_override_v1", JSON.stringify(timetableOverride));
-  localStorage.setItem("iiuler_mess_menu_v1", JSON.stringify(savedMessMenu));
-
-  cloudReady = true;
+  localStorage.setItem(MESS_STORAGE_KEY, JSON.stringify(savedMessMenu));
 
   renderAttendance();
   renderCalendar();
@@ -59,7 +65,7 @@ function applyRemoteChange(row) {
       attendance: () => { state = row.value; localStorage.setItem("iiuler_attendance_v2", JSON.stringify(state)); },
       timetable: () => { timetableOverride = row.value; localStorage.setItem("iiuler_timetable_override_v1", JSON.stringify(timetableOverride)); },
       holidays: () => { HOLIDAYS = row.value; },
-      mess: () => { savedMessMenu = row.value; localStorage.setItem("iiuler_mess_menu_v1", JSON.stringify(savedMessMenu)); }
+      mess: () => { savedMessMenu = row.value; localStorage.setItem(MESS_STORAGE_KEY, JSON.stringify(savedMessMenu)); }
     };
     if (map[row.data_key]) map[row.data_key]();
     renderAttendance();
@@ -160,14 +166,59 @@ const TIMETABLE = {
   5: [["09:55", "10:45", "Economics I"], ["10:50", "11:40", "Legal Methods"], ["12:00", "12:50", "English I"], ["12:55", "13:35", "Marketing Management"], ["14:30", "15:20", "Legal Methods"], ["15:25", "16:15", "Law of Torts"]]
 };
 
-const OCTOBER_MENU = {
-  monday: { breakfast: ["Aloo Pyaz Paratha", "Omelette or Boiled Egg", "Bread + Butter + Jam", "Bournvita", "Milk", "Tea & Coffee", "Cornflakes"], lunch: ["Veg Korma", "Black Chana Masala", "Dal Amritsari", "Plain Rice", "Chapati", "Rasam", "Fryums", "Green Salad", "Plain Curd", "Gulab Jamun"], snacks: ["Spicy Bhelpuri", "Tea & Coffee"], dinner: ["Paneer Butter Masala", "Veg Kolhapuri", "Dal Fry", "Plain Rice", "Chapati", "Toss Salad", "Boondi Raita", "Punjabi Egg Curry"] },
-  tuesday: { breakfast: ["Medu Vada", "Omelette or Boiled Egg", "Bread + Butter + Jam", "Bournvita", "Milk", "Tea & Coffee", "Cornflakes"], lunch: ["Punjabi Rajma", "Tawa Mix Veg Dry", "Dal Kolhapuri", "Plain Rice", "Chapati", "Sambhar", "Roasted Papad", "Masala Chopped Salad", "Fruit Custard"], snacks: ["Sabudana Tikki", "Tea & Coffee"], dinner: ["Dahi Kachori + Chutney", "Veg Makhawala", "Dahi Curry", "Plain Rice", "Chapati", "Macaroni Salad", "Plain Curd"] },
-  wednesday: { breakfast: ["Onion Poha", "Omelette or Boiled Egg", "Bread + Butter + Jam", "Bournvita", "Milk", "Tea & Coffee", "Cornflakes"], lunch: ["Soya Chilli", "Beans Dry", "Dal Makhni", "Jeera Rice", "Chapati", "Rasam", "Carrot Beetroot Salad", "Rasmalai"], snacks: ["Bread Pakoda", "Tea & Coffee"], dinner: ["Paneer Biryani", "Gobhi Masala", "Dal Kolhapuri", "Plain Rice", "Chapati", "Mix Salad + Fried Papad", "Veg Raita", "Chicken Biryani"] },
-  thursday: { breakfast: ["Moong Dal Chilla", "Omelette or Boiled Egg", "Bread + Butter + Jam", "Bournvita", "Milk", "Tea & Coffee", "Cornflakes"], lunch: ["Chhole Amritsari", "Aloo Methi", "Dal Tadka", "Plain Rice", "Puri + Chapati", "Sambhar", "Fried Papad", "Toss Salad", "Shrikhand"], snacks: ["Dabeli", "Tea & Coffee"], dinner: ["Mushroom Masala", "Mix Veg", "Dal Makhani", "Jeera Rice", "Chapati", "Plain Curd"] },
-  friday: { breakfast: ["Misal Pav", "Omelette or Boiled Egg", "Bread + Butter + Jam", "Bournvita", "Milk", "Tea & Coffee", "Cornflakes"], lunch: ["Veg Kofta Gravy", "Jeera Aloo", "Masoor Dal", "Plain Rice", "Chapati", "Rasam", "Roasted Papad", "Dhokla + Chutney", "Plain Curd", "Boondi"], snacks: ["Maggi", "Tea & Coffee"], dinner: ["Paneer Lazeez", "Aloo Baingan", "Dal Tadka", "Jeera Rice", "Chapati + Paratha", "Sirka Onion", "Boondi Raita", "Chicken Patiala / Egg Kolhapuri"] },
-  saturday: { breakfast: ["Masala Idli", "Omelette or Boiled Egg", "Bread + Butter + Jam", "Bournvita", "Milk", "Tea & Coffee", "Cornflakes"], lunch: ["Dum Aloo Gravy", "Veg Jalfrezi", "Dal Punjabi", "Plain Rice", "Chapati", "Sambhar", "Fried Papad", "Sprout Moong Salad", "Shahi Tukda"], snacks: ["Vada Pav", "Tea & Coffee"], dinner: ["Rajma Masala", "Soya Kheema", "Dal Kolhapuri", "Plain Rice", "Chapati", "Toss Salad", "Plain Curd"] },
-  sunday: { breakfast: ["Podi Masala Dosa", "Omelette or Boiled Egg", "Bread + Butter + Jam", "Bournvita", "Milk", "Tea & Coffee", "Cornflakes"], lunch: ["Pyaaz Paratha", "Thecha + Lehsun Chutney", "Soya Biryani", "Kokam Rasam", "Roasted Papad", "Dahi Vada", "Veg Raita"], snacks: ["French Fries", "Tea & Coffee"], dinner: ["Amritsari Chhole", "Bhature / Stuffed Kulcha", "Masala Khichadi", "Chapati", "Onion Salad"] }
+const SCHEDULE_OVERRIDES = {
+  "2026-11-14": [
+    ["Extra Lec", "", "Law of Torts"],
+    ["Extra Lec", "", "Economics I"],
+    ["Extra Lec", "", "Economics I"],
+    ["Extra Lec", "", "English I"],
+    ["Extra Lec", "", "English I"]
+  ]
+};
+
+const NOV_DEC_MENU = {
+  monday: {
+    breakfast: ["Aloo Pyaz Paratha / Sattu Paratha", "Omelette or Boiled Egg", "Bread + Butter + Jam", "Bournvita", "Milk", "Tea & Coffee", "Cornflakes"],
+    lunch: ["Malai Kofta", "Black Chana Dry", "Dal Tadka", "Plain Rice", "Chapati", "Rasam", "Fryums", "Moong Salad", "Plain Curd", "Gulab Jamun"],
+    snacks: ["Spicy Bhelpuri", "Tea & Coffee"],
+    dinner: ["Paneer Butter Masala", "Mix Veg Dry", "Dal Palak", "Plain Rice", "Chapati", "Toss Salad", "Punjabi Egg Curry", "Rasam"]
+  },
+  tuesday: {
+    breakfast: ["Medu Vada / Mysore Bonda", "Omelette or Boiled Egg", "Bread + Butter + Jam", "Bournvita", "Milk", "Tea & Coffee", "Cornflakes"],
+    lunch: ["Punjabi Rajma", "Veg Jalfrezi", "Sabut Masoor Dal", "Jeera Rice", "Chapati", "Sambhar", "Roasted Papad", "Mix Salad", "Shahi Tukda"],
+    snacks: ["Veg Cutlet", "Tea & Coffee"],
+    dinner: ["Samosa Chaat / Dahi Kachori", "Mushroom Masala", "Dal Kolhapuri", "Jeera Rice", "Chapati", "Macaroni Salad", "Sambhar"]
+  },
+  wednesday: {
+    breakfast: ["Onion Poha / Indori Poha", "Omelette or Boiled Egg", "Bread + Butter + Jam", "Bournvita", "Milk", "Tea & Coffee", "Cornflakes"],
+    lunch: ["Kadhi Pakoda", "Kurkuri Bhindi", "Dal Fry", "Plain Rice", "Chapati", "Rasam", "Green Salad", "Plain Curd", "Rasmalai"],
+    snacks: ["Vada Pav", "Tea & Coffee"],
+    dinner: ["Paneer Biryani", "Gajar Matar Dry", "Dal Masoor (Red)", "Plain Rice", "Chapati", "Mix Salad + Fried Papad", "Chicken Biryani", "Rasam"]
+  },
+  thursday: {
+    breakfast: ["Normal Idli / Tadka Idli", "Omelette or Boiled Egg", "Bread + Butter + Jam", "Bournvita", "Milk", "Tea & Coffee", "Cornflakes"],
+    lunch: ["Chhole Amritsari", "Aloo Methi", "Dal Makhani", "Jeera Rice", "Puri + Chapati", "Sambhar", "Fried Papad", "Red Salad", "Sewai Kheer / Shrikhand"],
+    snacks: ["Papdi Chaat", "Tea & Coffee"],
+    dinner: ["Gobhi Manchurian Dry", "Dudhi Chana Dry", "Dal Panchratna", "Veg Fried Rice / Hakka Noodles", "Chapati", "Green Salad", "Sambhar"]
+  },
+  friday: {
+    breakfast: ["Misal Pav / Pav Bhaji", "Omelette or Boiled Egg", "Bread + Butter + Jam", "Bournvita", "Milk", "Tea & Coffee", "Cornflakes"],
+    lunch: ["Soya Chilli / Soya Masala", "Mix Veg Dry", "Dal Arhar", "Plain Rice", "Chapati", "Rasam", "Roasted Papad", "Macaroni Salad", "Plain Curd", "Rabdi Jalebi"],
+    snacks: ["Dabeli", "Tea & Coffee"],
+    dinner: ["Paneer Lazeez", "Bhindi Dry", "Dal Banjara", "Jeera Rice", "Chapati + Paratha", "Sirka Onion", "Chicken Patiala / Egg Kolhapuri", "Rasam"]
+  },
+  saturday: {
+    breakfast: ["Veg Uttapam", "Omelette or Boiled Egg", "Bread + Butter + Jam", "Bournvita", "Milk", "Tea & Coffee", "Cornflakes"],
+    lunch: ["Dum Aloo Gravy", "Veg Makhanwala", "Dal Masoor (Red)", "Jeera Rice", "Chapati", "Sambhar", "Fried Papad", "Sprout Moong Salad", "Chana Salad", "Fruit Custard"],
+    snacks: ["Samosa", "Tea & Coffee"],
+    dinner: ["Punjabi Rajma Gravy", "Aloo Capsicum Dry", "Dal Makhani", "Plain Rice", "Chapati", "Toss Salad", "Sambhar"]
+  },
+  sunday: {
+    breakfast: ["Masala Dosa / Podi Masala Dosa", "Omelette or Boiled Egg", "Bread + Butter + Jam", "Bournvita", "Milk", "Tea & Coffee", "Cornflakes"],
+    lunch: ["Pyaaz Paratha", "Thecha + Lehsun Chutney", "Dal Banjara", "Veg Biryani / Soya Biryani", "Chapati", "Kokam Rasam", "Roasted Papad", "Dahi Vada + Chutney", "Veg Raita"],
+    snacks: ["French Fries", "Tea & Coffee"],
+    dinner: ["Pindi Chole Bhature", "Dal Tadka", "Jeera Rice", "Chapati", "Onion + Lemon + Salad", "Rasam"]
+  }
 };
 
 /* =========================
@@ -242,6 +293,7 @@ function getActiveTimetable() {
 
 function getClassesForDate(date) {
   const key = dateKey(date);
+  if (SCHEDULE_OVERRIDES[key]) return SCHEDULE_OVERRIDES[key];
   const day = date.getDay();
   if (day === 0 || day === 6 || HOLIDAYS[key] || key < "2026-09-28") return [];
   return getActiveTimetable()[day] || [];
@@ -320,11 +372,18 @@ function getActualAttendance() {
         if (record.status === "present") result[record.subject].attended++;
       }
     } else {
+      const classes = getClassesForDate(parseDate(key));
+      const subjectCounts = {};
+      classes.forEach(lesson => {
+        subjectCounts[lesson[2]] = (subjectCounts[lesson[2]] || 0) + 1;
+      });
+
       for (const subject in records) {
         if (!result[subject]) continue;
         const status = records[subject];
-        if (status === "present" || status === "absent") result[subject].total++;
-        if (status === "present") result[subject].attended++;
+        const count = subjectCounts[subject] || 1;
+        if (status === "present" || status === "absent") result[subject].total += count;
+        if (status === "present") result[subject].attended += count;
       }
     }
   }
@@ -346,8 +405,7 @@ function hasAttendanceRecord(key) {
 function getFutureClasses() {
   const days = [];
   const todayKey = dateKey(new Date());
-  
-  // Filter out days before today
+
   let startDateKey = ATTENDANCE_START > todayKey ? ATTENDANCE_START : todayKey;
   let date = parseDate(startDateKey);
   const cutoff = parseDate(ATTENDANCE_CUTOFF);
@@ -383,18 +441,18 @@ function getPrediction(dayChoices = {}) {
   return result;
 }
 
-function calculateCanMiss(attended, total, remaining) {
+function calculateCanMiss(actualAttended, actualTotal, remaining) {
   let maxMiss = 0;
   for (let missed = 0; missed <= remaining; missed++) {
-    if (percentage(attended + (remaining - missed), total + remaining) >= 75) maxMiss = missed;
+    if (percentage(actualAttended + (remaining - missed), actualTotal + remaining) >= 75) maxMiss = missed;
   }
   return maxMiss;
 }
 
-function calculateMustAttend(attended, total, remaining) {
+function calculateMustAttend(actualAttended, actualTotal, remaining) {
   let mustAttend = 0;
-  while (mustAttend <= remaining && percentage(attended + mustAttend, total + remaining) < 75) mustAttend++;
-  return percentage(attended + mustAttend, total + remaining) < 75 ? null : mustAttend;
+  while (mustAttend <= remaining && percentage(actualAttended + mustAttend, actualTotal + remaining) < 75) mustAttend++;
+  return percentage(actualAttended + mustAttend, actualTotal + remaining) < 75 ? null : mustAttend;
 }
 
 function countRemainingSubjectClasses(subject, choices) {
@@ -452,10 +510,10 @@ function renderAttendance() {
   const todayRecords = state.attendanceRecords[todayKey] || {};
   let markedToday = 0;
 
-  todayClasses.forEach(lesson => {
+  todayClasses.forEach((lesson, idx) => {
     const subject = lesson[2];
     const status = Array.isArray(todayRecords)
-      ? (todayRecords.find(i => i.subject === subject)?.status || "")
+      ? (todayRecords[idx]?.status || "")
       : (todayRecords[subject] || "");
     if (status === "present" || status === "absent") markedToday++;
   });
@@ -485,9 +543,9 @@ function renderAttendance() {
   }
 
   html += `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-      <button class="predictor-button" style="margin-bottom:0" onclick="openPredictor()">📊 Predictor</button>
-      <button class="secondary-button" style="min-height:46px;margin-top:0" onclick="openBaselineManager()">✏️ Edit Attendance</button>
+    <div style="display:flex;gap:8px;margin-bottom:10px;align-items:stretch">
+      <button class="predictor-button" style="flex:1;margin:0" onclick="openPredictor()">📊 Predictor</button>
+      <button class="secondary-button" style="width:46px;min-width:46px;height:46px;padding:0;margin:0;display:flex;align-items:center;justify-content:center;font-size:16px" title="Edit Baseline" onclick="openBaselineManager()">✏️</button>
     </div>`;
 
   for (const subject in data) {
@@ -584,9 +642,10 @@ function openDay(key) {
   if (classes.length) {
     html += `<div class="class-list">`;
     for (const lesson of classes) {
+      const timeDisplay = lesson[1] ? `${lesson[0]}<br>${lesson[1]}` : lesson[0];
       html += `
         <div class="class-item">
-          <div class="class-time">${lesson[0]}<br>${lesson[1]}</div>
+          <div class="class-time">${timeDisplay}</div>
           <div class="class-name">${prettySubject(lesson[2])}</div>
         </div>`;
     }
@@ -610,18 +669,20 @@ function openAttendanceModal(key) {
   if (!classes.length) return;
 
   const existing = state.attendanceRecords[key] || {};
-  let existingMap = Array.isArray(existing) ? Object.fromEntries(existing.map(r => [r.subject, r.status])) : existing;
 
   let rows = "";
   classes.forEach((lesson, index) => {
     const subject = lesson[2];
-    const current = existingMap[subject] || "";
+    const current = Array.isArray(existing)
+      ? (existing[index]?.status || "")
+      : (existing[subject] || "");
+    const timeText = lesson[1] ? `${lesson[0]} – ${lesson[1]}` : lesson[0];
 
     rows += `
       <div class="attendance-class-row">
         <div class="attendance-class-info">
           <div class="attendance-class-name">${prettySubject(subject)}</div>
-          <div class="attendance-class-time">${lesson[0]} – ${lesson[1]}</div>
+          <div class="attendance-class-time">${timeText}</div>
         </div>
         <div class="attendance-toggle">
           <button type="button" class="attendance-choice present-choice ${current === "present" ? "selected" : ""}" data-index="${index}" onclick="setAttendanceChoice(this,'present')">Present</button>
@@ -664,14 +725,19 @@ function markAllPresent() {
 function saveAttendance(key) {
   const rows = document.querySelectorAll(".attendance-class-row");
   const classes = getClassesForDate(parseDate(key));
-  const records = {};
+  const records = [];
 
   rows.forEach((row, index) => {
     const selected = row.querySelector(".attendance-choice.selected");
-    if (selected) records[classes[index][2]] = selected.classList.contains("present-choice") ? "present" : "absent";
+    if (selected) {
+      records.push({
+        subject: classes[index][2],
+        status: selected.classList.contains("present-choice") ? "present" : "absent"
+      });
+    }
   });
 
-  if (Object.keys(records).length > 0) state.attendanceRecords[key] = records;
+  if (records.length > 0) state.attendanceRecords[key] = records;
   saveState();
   closeModal();
   renderAttendance();
@@ -700,6 +766,7 @@ function cyclePredictorDay(key) {
 
 function renderPredictor() {
   const days = getFutureClasses();
+  const actual = getActualAttendance();
   const prediction = getPrediction(predictorChoices);
   let totalA = 0, totalT = 0;
   for (const s in prediction) { totalA += prediction[s].attended; totalT += prediction[s].total; }
@@ -714,7 +781,7 @@ function renderPredictor() {
           <button class="close-button" onclick="closePredictor()">×</button>
         </div>
         <div class="predictor-controls">
-          <div class="predictor-month">Remaining Days</div>
+          <div class="predictor-month">Remaining Days (Nov 2026)</div>
         </div>
         <div class="info-box">
           Tap a class day to cycle: <b>Attending</b> → <b style="color:var(--red)">Not Attending</b> → <b>Ignored</b>.<br><br>
@@ -746,9 +813,11 @@ function renderPredictor() {
     const a = prediction[subject].attended;
     const t = prediction[subject].total;
     const p = percentage(a, t);
+    const actualA = actual[subject].attended;
+    const actualT = actual[subject].total;
     const remaining = countRemainingSubjectClasses(subject, predictorChoices);
-    const canMiss = calculateCanMiss(a, t, remaining);
-    const mustAttend = calculateMustAttend(a, t, remaining);
+    const canMiss = calculateCanMiss(actualA, actualT, remaining);
+    const mustAttend = calculateMustAttend(actualA, actualT, remaining);
     const cls = p >= 75 ? "forecast-good" : p >= 70 ? "forecast-warning" : "forecast-danger";
 
     let advice = p >= 75
@@ -798,7 +867,7 @@ function escapeMessHTML(val) {
 
 function getMessMenu(date) {
   const day = DAY_NAMES[date.getDay()].toLowerCase();
-  return (savedMessMenu && savedMessMenu[day]) || OCTOBER_MENU[day] || null;
+  return (savedMessMenu && savedMessMenu[day]) || NOV_DEC_MENU[day] || null;
 }
 
 function renderMess() {
@@ -840,7 +909,7 @@ function renderMess() {
   }
 
   html += `</div>`;
-  if (savedMessMenu && savedMessMenu[dayKey]) html += `<p class="mess-saved-note"><span>●</span> Updated menu saved on this device</p>`;
+  if (savedMessMenu && savedMessMenu[dayKey]) html += `<p class="mess-saved-note"><span>●</span> Nov–Dec 2026 menu synced</p>`;
   page.innerHTML = html;
 }
 
@@ -853,7 +922,7 @@ function openMessMenuManager() {
   let fields = "";
   for (const day of DAY_NAMES) {
     const key = day.toLowerCase();
-    const existing = (savedMessMenu && savedMessMenu[key]) || OCTOBER_MENU[key] || {};
+    const existing = (savedMessMenu && savedMessMenu[key]) || NOV_DEC_MENU[key] || {};
     fields += `<section class="mess-editor-day"><h3>${day}</h3>`;
     for (const meal of MESS_MEALS) {
       const val = Array.isArray(existing[meal.key]) ? existing[meal.key].join("\n") : "";
